@@ -19,6 +19,7 @@ func MonitorCommonItem(flag bool) {
 
 func MonitorCPU(flag bool) {
     log.Info("MonitorCPU start!")
+    coreNum := -1 
     session := sh.NewSession()
     out, err := session.Command("cat", "/proc/stat").Output()
     if err != nil {
@@ -31,6 +32,7 @@ func MonitorCPU(flag bool) {
         fields := strings.Fields(line)
         if len(fields) > 0 && strings.Contains(fields[0], "cpu") {
             var cpuitme model.CPURaw
+            coreNum++
             cpuitme.CPUNum = string(fields[0])
             parseCPUFields(fields, &cpuitme)
             arrCPU = append(arrCPU, cpuitme)
@@ -55,6 +57,7 @@ func MonitorCPU(flag bool) {
     }
     model.PreCPU = arrCPU
 
+    log.Info("The number of terminal cpu core is ", coreNum,)
     for l := 0; l < len(arrCPUInfo); l++ {
         cpuInfo := arrCPUInfo[l]
         log.Info("--------------------------------")
@@ -75,7 +78,6 @@ func parseCPUFields(fields []string, stat *model.CPURaw) {
         if err != nil {
             continue
         }
-
         stat.Total += val
         switch i {
             case 1:
