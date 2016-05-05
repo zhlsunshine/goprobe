@@ -11,6 +11,7 @@ import (
     "runtime"
     log "github.com/cihub/seelog"
     "goprobe/model"
+    "goprobe/common-item"
     "goprobe/network-traffic"
 )
 
@@ -29,6 +30,7 @@ func main() {
     timer := time.Tick(interval)
     done := false
     var traffics = make(map[string]model.Traffic)
+    commonItem.MonitorCommonItem(false)
     network.MonitorNetworkTraffic(traffics, false)
     for !done {
         select {
@@ -42,11 +44,8 @@ func main() {
                 log.Info("\n end")
                 log.Info("exit!")
             case <-timer:
+                commonItem.MonitorCommonItem(true)
                 network.MonitorNetworkTraffic(traffics, true)
-                for key, value := range traffics {
-                    log.Info("Key: ", key)
-                    log.Info("Value: ", value)
-                }
         }
     }
 }

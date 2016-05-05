@@ -54,5 +54,11 @@ func MonitorNetworkTraffic(traffics map[string]model.Traffic, flag bool) {
             }
         }
     } 
+
+    for key, value := range traffics {
+        log.Info("Key: ", key)
+        log.Info("Value: ", value)
+    }
+
     log.Info("MonitorNetworkTraffic end!")
 }
