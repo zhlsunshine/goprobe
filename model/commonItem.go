@@ -1,5 +1,8 @@
 package model
 
+/***************************************************************************
+CPU MODEL
+***************************************************************************/
 type CPURaw struct {
     CPUNum  string // cpu NO. for multi-core
     User    uint64 //time spent in user mode
@@ -28,3 +31,16 @@ type CPUInfo struct {
 }
 
 var PreCPU []CPURaw
+
+
+/***************************************************************************
+Memory MODEL
+***************************************************************************/
+type MemoryInfo struct {
+    MemTotal     uint64
+    MemFree      uint64
+    MemBuffers   uint64
+    MemCached    uint64
+    SwapTotal    uint64
+    SwapFree     uint64
+}

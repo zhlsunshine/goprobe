@@ -13,12 +13,12 @@ import (
 
 func MonitorCommonItem(flag bool) {
     MonitorCPU(flag)
-    // MonitorMemory()
+    MonitorMemory(flag)
     // MonitorDisk()
 } 
 
 func MonitorCPU(flag bool) {
-    log.Info("MonitorCPU start!")
+    log.Info("Monitor CPU start!")
     coreNum := -1 
     session := sh.NewSession()
     out, err := session.Command("cat", "/proc/stat").Output()
@@ -60,6 +60,7 @@ func MonitorCPU(flag bool) {
     log.Info("The number of terminal cpu core is ", coreNum,)
     for l := 0; l < len(arrCPUInfo); l++ {
         cpuInfo := arrCPUInfo[l]
+        log.Info("CPU Information:")
         log.Info("--------------------------------")
         log.Info("CPU Name: ", cpuInfo.CPUNum)
         log.Info("User: ", cpuInfo.User)
@@ -68,7 +69,7 @@ func MonitorCPU(flag bool) {
         log.Info("Idle: ", cpuInfo.Idle)
         log.Info("--------------------------------")
     }
-    log.Info("MonitorCPU end!")
+    log.Info("Monitor CPU end!")
 }
 
 func parseCPUFields(fields []string, stat *model.CPURaw) {
@@ -100,4 +101,51 @@ func parseCPUFields(fields []string, stat *model.CPURaw) {
                 stat.Guest = val
         }
     }
+}
+
+func MonitorMemory(flag bool) {
+    log.Info("Monitor Memory start!")
+    session := sh.NewSession()
+    lines, err := session.Command("cat", "/proc/meminfo").Output()
+    if err != nil {
+        panic(err)
+    }
+
+    var stats model.MemoryInfo
+    scanner := bufio.NewScanner(strings.NewReader(string(lines)))
+    for scanner.Scan() {
+        line := scanner.Text()
+        parts := strings.Fields(line)
+        if len(parts) == 3 {
+            val, err := strconv.ParseUint(parts[1], 10, 64)
+            if err != nil {
+                continue
+            }
+        val *= 1024
+        switch parts[0] {
+            case "MemTotal:":
+                    stats.MemTotal = val
+            case "MemFree:":
+                    stats.MemFree = val
+            case "Buffers:":
+                    stats.MemBuffers = val
+            case "Cached:":
+                    stats.MemCached = val
+            case "SwapTotal:":
+                    stats.SwapTotal = val
+            case "SwapFree:":
+                    stats.SwapFree = val
+            }
+        }
+    }
+    log.Info("Memory Information:")
+    log.Info("--------------------------------")    
+    log.Info("Total: ",      stats.MemTotal)
+    log.Info("Free: ",       stats.MemFree)
+    log.Info("Buffer: ",     stats.MemBuffers)
+    log.Info("Cached: ",     stats.MemCached)
+    log.Info("Swap total: ", stats.SwapTotal)
+    log.Info("Swap free: ",  stats.SwapFree)
+    log.Info("--------------------------------")    
+    log.Info("Monitor Memory end!")
 }

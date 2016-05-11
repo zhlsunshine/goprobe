@@ -12,6 +12,7 @@ import (
     log "github.com/cihub/seelog"
     "goprobe/model"
     "goprobe/common-item"
+    "goprobe/custom-stats"
     "goprobe/network-traffic"
 )
 
@@ -31,6 +32,7 @@ func main() {
     done := false
     var traffics = make(map[string]model.Traffic)
     commonItem.MonitorCommonItem(false)
+    customstats.MonitorCustomStats(false)
     network.MonitorNetworkTraffic(traffics, false)
     for !done {
         select {
@@ -45,6 +47,7 @@ func main() {
                 log.Info("exit!")
             case <-timer:
                 commonItem.MonitorCommonItem(true)
+                customstats.MonitorCustomStats(true)
                 network.MonitorNetworkTraffic(traffics, true)
         }
     }
